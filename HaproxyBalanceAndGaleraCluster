@@ -1,0 +1,133 @@
+On any server included in galera cluster execute command:
+
+CREATE USER 'user'@'%' IDENTIFIED BY 'YouStrongPassword';
+
+GRANT ALL PRIVILEGES ON *.* TO 'user'@'%';
+
+FLUSH PRIVILEGES;
+
+CREATE DATABASE DataBaseName CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+quit;
+
+On everything servers cluster execute command:
+
+cd ~
+  
+yum install epel-release -y
+
+wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+rpm -Uvh remi-release-7.rpm
+  
+yum install yum-utils httpd unzip zip wget -y
+  
+yum-config-manager --enable remi-php81
+
+yum install php php-fpm php-cli php-mysql php-gd php-ldap php-odbc php-pdo php-pecl-memcache php-opcache php-pear php-xml php-xmlrpc php-mbstring php-snmp php-soap php-zip php-imagick -y
+
+systemctl start httpd
+  
+cd /var/www/html/
+
+wget https://ru.wordpress.org/latest-ru_RU.zip
+
+unzip latest-ru_RU.zip
+
+mv wordpress shop
+
+rm -rf latest-ru_RU.zip
+
+cd shop
+
+mv -f * /var/www/html/
+
+On balance server execute command:
+
+yum install epel-release -y
+
+yum install haproxy -y
+
+cd /etc/haproxy/
+
+mv haproxy.cfg haproxy.cfg_backup
+
+nano haproxy.cfg
+
+global
+
+  log /dev/log local0
+
+  log /dev/log local1 notice
+
+  chroot /var/lib/haproxy
+
+  stats timeout 30s
+  
+  user haproxy
+  
+  group haproxy
+
+  daemon
+
+defaults
+   
+  log global
+  
+  mode http
+  
+  option httplog
+  
+  option dontlognull
+  
+  timeout connect 5000
+  
+  timeout client 50000
+   
+  timeout server 50000
+
+frontend http_front
+  
+  bind *:80
+  
+  stats uri /haproxy?stats
+
+  default_backend http_back
+
+backend http_back
+  
+  balance roundrobin
+  
+  server ws1 ip_address_1_server_cluster:80 check
+  
+  server ws2 ip_address_2_server_cluster:80 check # If need add more servers
+
+frontend galera_cluster_frontend
+    
+  bind *:3306
+  
+  mode tcp
+  
+  option tcplog
+  
+  default_backend galera_cluster_backend
+
+backend galera_cluster_backend
+  
+  mode tcp
+  
+  option tcpka
+  
+  balance leastconn
+  
+  server gs1 ip_address_1_server_cluster:3306  check
+  
+  server gs2 ip_address_2_server_cluster:3306  check # If need add more servers
+
+systemctl start haprpxy
+
+
+
+
+2 сервер
+rsync -az --delete /var/www/html/ root@185.189.14.53:/var/www/html/
+
