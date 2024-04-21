@@ -1,0 +1,36 @@
+#You need doing this command list on all future cluster servers
+curl -LsS -O https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
+bash mariadb_repo_setup --mariadb-server-version=10.4
+yum makecache -y
+yum install MariaDB-server MariaDB-client MariaDB-backup -y
+systemctl start mariadb
+mysql -u root
+set password = password("passsword3204");
+quit;
+yum install rsync policycoreutils-python -y
+
+nano /etc/my.cnf.d/galera.cnf
+[mysqld]
+binlog_format=ROW
+default-storage-engine=innodb
+innodb_autoinc_lock_mode=2
+bind-address=0.0.0.0
+# Galera Provider Configuration
+wsrep_on=ON
+wsrep_provider=/usr/lib64/galera-4/libgalera_smm.so
+# Galera Cluster Configuration
+wsrep_cluster_name="test_cluster"
+wsrep_cluster_address="gcomm://First_Node_IP,Second_Node_IP"
+# Galera Synchronization Configuration
+wsrep_sst_method=rsync
+# Galera Node Configuration
+wsrep_node_address="This_Node_IP"
+wsrep_node_name="This_Node_Name"
+#SaveFile
+
+firewall-cmd --permanent --zone=public --add-port=3306/tcp --add-port=4567/tcp --add-port=4568/tcp --add-port=4444/tcp --add-port=4567/udp
+firewall-cmd --reload
+setenforce 0
+sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
+
+systemctl stop mariadb
