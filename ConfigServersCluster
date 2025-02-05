@@ -1,5 +1,5 @@
 #You need doing this command list on all future cluster servers
-cd /etc/yum.repo/
+cd /etc/yum.repos/
 nano mariadb.repo
    # MariaDB 10.5 CentOS repository list - created 2025-02-05 18:03 UTC
   # https://mariadb.org/download/
