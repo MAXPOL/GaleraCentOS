@@ -1,8 +1,19 @@
 #You need doing this command list on all future cluster servers
-curl -LsS -O https://downloads.mariadb.com/MariaDB/mariadb_repo_setup
-bash mariadb_repo_setup --mariadb-server-version=10.4
-yum makecache -y
-yum install MariaDB-server MariaDB-client MariaDB-backup -y
+cd /etc/yum.repo/
+nano mariadb.repo
+   # MariaDB 10.5 CentOS repository list - created 2025-02-05 18:03 UTC
+  # https://mariadb.org/download/
+  [mariadb]
+  name = MariaDB
+  # rpm.mariadb.org is a dynamic mirror if your preferred mirror goes offline. See https://mariadb.org/mirrorbits/ for details.
+  # baseurl = https://rpm.mariadb.org/10.5/centos/$releasever/$basearch
+  baseurl = https://mirror.truenetwork.ru/mariadb/yum/10.5/centos/$releasever/$basearch
+  module_hotfixes = 1
+  # gpgkey = https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB
+  gpgkey = https://mirror.truenetwork.ru/mariadb/yum/RPM-GPG-KEY-MariaDB
+  gpgcheck = 1
+
+yum install MariaDB-server MariaDB-client -y
 systemctl start mariadb
 mysql -u root
 set password = password("passsword3204");
