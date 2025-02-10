@@ -129,5 +129,5 @@ systemctl start haprpxy
 
 
 2 сервер
-rsync -az --delete /var/www/html/ root@185.189.14.53:/var/www/html/
+rsync -az --delete /var/www/html/ user_server@ip_address_second_server:/var/www/html/
 
